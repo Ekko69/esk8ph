@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "945050438830",
+    "firebase_url": "https://esk8ph-5c8a6.firebaseio.com",
+    "project_id": "esk8ph-5c8a6",
+    "storage_bucket": "esk8ph-5c8a6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:945050438830:android:050ca78c799532cadff13f",
+        "android_client_info": {
+          "package_name": "com.threepointogames.esk8ph"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "945050438830-bnv7vu952ul50o2lu31378s1812cd3ee.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.threepointogames.esk8ph",
+            "certificate_hash": "d5f9e2392a43e7465c942fd555b692edb5c63ae6"
+          }
+        },
+        {
+          "client_id": "945050438830-8np1cpurig0kq98uob6udc5sa9g3bf37.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.threepointogames.esk8ph",
+            "certificate_hash": "2378b803008923515e49938809e3341ad3242285"
+          }
+        },
+        {
+          "client_id": "945050438830-5qfv1af2rdkq3vlmsmdhn6629vs1kf3b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAC5FsuinAUiG1T8uCvgS7xwmD06YGHTDc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "945050438830-5qfv1af2rdkq3vlmsmdhn6629vs1kf3b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
