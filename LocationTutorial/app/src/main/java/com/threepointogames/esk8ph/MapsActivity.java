@@ -72,7 +72,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationRequest.setFastestInterval(500);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        databaseReference = FirebaseDatabase.getInstance().getReference("Location");
+        databaseReference = FirebaseDatabase.getInstance().getReference("UserProfile");
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -122,12 +122,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         // Add a marker at Taj Mahal and move the camera
-//        LatLng latLng = new LatLng(27.1751, 78.0421);
-//        MarkerOptions markerOptions = new MarkerOptions()
-//                                            .position(latLng)
-//                                            .title("Taj Mahal")
-//                                            .snippet("Wonder of the world!");
-//        mMap.addMarker(markerOptions);
+        LatLng latLng = new LatLng(14.5764, 121.0851);
+        MarkerOptions mymarkerOptions = new MarkerOptions()
+                                            .position(latLng)
+                                            .title("Taj Mahal")
+                                            .snippet("Wonder of the world!");
+        mMap.addMarker(mymarkerOptions);
 //        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 16);
 //        mMap.animateCamera(cameraUpdate);
 
