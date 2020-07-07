@@ -80,10 +80,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String databaseLatitudeString = dataSnapshot.child("Location").child("latitude").getValue().toString();
                 String databaseLongitudeString = dataSnapshot.child("Location").child("longitude").getValue().toString();
 
-
-
-                Log.d("Ekko","Data Changed: "+databaseLatitudeString );
-                setUserNewLocationMarker(Float.parseFloat(databaseLatitudeString),Float.parseFloat(databaseLongitudeString));
+                setUserNewLocationMarker(Float.parseFloat(databaseLatitudeString),Float.parseFloat(databaseLongitudeString)); // Set team member location to map
             }
 
             @Override
@@ -213,6 +210,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             userLocationMarker.setPosition(latLng);
             userLocationMarker.setRotation(location.getBearing());
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+            Log.d("Ekko",latLng  + "");
+
+            //Update user location to database
+            databaseReference.child("Location").child("latitude").setValue(location.getLatitude());
+            databaseReference.child("Location").child("longitude").setValue(location.getLongitude());
         }
 
         if (userLocationAccuracyCircle == null) {
