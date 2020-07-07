@@ -73,14 +73,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationRequest.setFastestInterval(500);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        databaseReference = FirebaseDatabase.getInstance().getReference("UserProfile");
+        databaseReference = FirebaseDatabase.getInstance().getReference("UserProfile1");
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String databaseLatitudeString = dataSnapshot.child("latitude").getValue().toString().substring(1,dataSnapshot.child("latitude").getValue().toString().length()-1);
-                String databaseLongitudeString = dataSnapshot.child("longitude").getValue().toString().substring(1,dataSnapshot.child("longitude").getValue().toString().length()-1);
+                String databaseLatitudeString = dataSnapshot.child("Location").child("latitude").getValue().toString();
+                String databaseLongitudeString = dataSnapshot.child("Location").child("longitude").getValue().toString();
+
+
 
                 Log.d("Ekko","Data Changed: "+databaseLatitudeString );
+                setUserNewLocationMarker(Float.parseFloat(databaseLatitudeString),Float.parseFloat(databaseLongitudeString));
             }
 
             @Override
@@ -89,8 +92,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        databaseReference.child("latitude").push().setValue("Ekko");
-        databaseReference.child("longitude").push().setValue("De La Cruz");
+        databaseReference.child("Location").child("latitude").setValue("14.5764f");
+        databaseReference.child("Location").child("longitude").setValue("121.0851f");
     }
 
     /**
@@ -131,14 +134,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         package_marker.setPosition(currentPosition);*/
 
         // Add a marker at Taj Mahal and move the camera
-        LatLng latLng = new LatLng(14.5764, 121.0851);
+      /*  LatLng latLng = new LatLng(14.5764, 121.0851);
         MarkerOptions mymarkerOptions = new MarkerOptions()
                                             .position(latLng)
                                             .title("Taj Mahal")
                                             .snippet("Wonder of the world!");
-        mMap.addMarker(mymarkerOptions);
+        mMap.addMarker(mymarkerOptions);*/
 //        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 16);
 //        mMap.animateCamera(cameraUpdate);
+
+
+        setUserNewLocationMarker(14.5764f,121.0851f);
 
         try {
             List<Address> addresses = geocoder.getFromLocationName("london", 1);
@@ -167,38 +173,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     };
 
-    private void setUserNewLocationMarker(Location location) {
+    private void setUserNewLocationMarker(float lat,float lng) {
 
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        LatLng latLng = new LatLng(lat, lng);
 
         if (newUserLocationMarker == null) {
             //Create a new marker
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
             markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.redcar));
-            markerOptions.rotation(location.getBearing());
+            //markerOptions.rotation(location.getBearing());
             markerOptions.anchor((float) 0.5, (float) 0.5);
             newUserLocationMarker = mMap.addMarker(markerOptions);
           //  mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
         } else  {
             //use the previously created marker
             newUserLocationMarker.setPosition(latLng);
-            newUserLocationMarker.setRotation(location.getBearing());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+
         }
 
-        if (userLocationAccuracyCircle == null) {
-            CircleOptions circleOptions = new CircleOptions();
-            circleOptions.center(latLng);
-            circleOptions.strokeWidth(4);
-            circleOptions.strokeColor(Color.argb(255, 255, 0, 0));
-            circleOptions.fillColor(Color.argb(32, 255, 0, 0));
-            circleOptions.radius(location.getAccuracy());
-            userLocationAccuracyCircle = mMap.addCircle(circleOptions);
-        } else {
-            userLocationAccuracyCircle.setCenter(latLng);
-            userLocationAccuracyCircle.setRadius(location.getAccuracy());
-        }
+
     }
 
     private void setUserLocationMarker(Location location) {
