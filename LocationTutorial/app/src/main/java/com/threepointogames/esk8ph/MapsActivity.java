@@ -49,6 +49,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private Geocoder geocoder;
     private int ACCESS_LOCATION_REQUEST_CODE = 10001;
+    Marker newUserLocationMarker;
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
 
@@ -78,6 +79,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String databaseLatitudeString = dataSnapshot.child("latitude").getValue().toString().substring(1,dataSnapshot.child("latitude").getValue().toString().length()-1);
                 String databaseLongitudeString = dataSnapshot.child("longitude").getValue().toString().substring(1,dataSnapshot.child("longitude").getValue().toString().length()-1);
+
+                Log.d("Ekko","Data Changed: "+databaseLatitudeString );
             }
 
             @Override
@@ -121,6 +124,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
 
+       /* LatLng currentPosition = new LatLng(
+                startPosition.latitude*(1-t)+finalPosition.latitude*t,
+                startPosition.longitude*(1-t)+finalPosition.longitude*t);
+
+        package_marker.setPosition(currentPosition);*/
+
         // Add a marker at Taj Mahal and move the camera
         LatLng latLng = new LatLng(14.5764, 121.0851);
         MarkerOptions mymarkerOptions = new MarkerOptions()
@@ -157,6 +166,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     };
+
+    private void setUserNewLocationMarker(Location location) {
+
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+        if (newUserLocationMarker == null) {
+            //Create a new marker
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLng);
+            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.redcar));
+            markerOptions.rotation(location.getBearing());
+            markerOptions.anchor((float) 0.5, (float) 0.5);
+            newUserLocationMarker = mMap.addMarker(markerOptions);
+          //  mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+        } else  {
+            //use the previously created marker
+            newUserLocationMarker.setPosition(latLng);
+            newUserLocationMarker.setRotation(location.getBearing());
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+        }
+
+        if (userLocationAccuracyCircle == null) {
+            CircleOptions circleOptions = new CircleOptions();
+            circleOptions.center(latLng);
+            circleOptions.strokeWidth(4);
+            circleOptions.strokeColor(Color.argb(255, 255, 0, 0));
+            circleOptions.fillColor(Color.argb(32, 255, 0, 0));
+            circleOptions.radius(location.getAccuracy());
+            userLocationAccuracyCircle = mMap.addCircle(circleOptions);
+        } else {
+            userLocationAccuracyCircle.setCenter(latLng);
+            userLocationAccuracyCircle.setRadius(location.getAccuracy());
+        }
+    }
 
     private void setUserLocationMarker(Location location) {
 
