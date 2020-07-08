@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
@@ -45,6 +46,7 @@ import java.util.List;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerDragListener {
 
     private DatabaseReference databaseReference;
+    private DatabaseReference databasePartnerReference;
     private static final String TAG = "MapsActivity";
     private GoogleMap mMap;
     private Geocoder geocoder;
@@ -55,6 +57,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     Marker userLocationMarker;
     Circle userLocationAccuracyCircle;
+    SharedPreferences pref_Id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,14 +75,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationRequest.setInterval(500);
         locationRequest.setFastestInterval(500);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        databaseReference = FirebaseDatabase.getInstance().getReference("UserProfile1");
+        pref_Id = getSharedPreferences("myPref", MODE_PRIVATE);
+        Log.d("Ids","ID1: "+ pref_Id.getString("user_id", ""));
+        databaseReference = FirebaseDatabase.getInstance().getReference(pref_Id.getString("user_id", ""));
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String databaseLatitudeString = dataSnapshot.child("Location").child("latitude").getValue().toString();
                 String databaseLongitudeString = dataSnapshot.child("Location").child("longitude").getValue().toString();
 
+              //  setUserNewLocationMarker(Float.parseFloat(databaseLatitudeString),Float.parseFloat(databaseLongitudeString)); // Set team member location to map
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        Log.d("Ids","ID2: "+ pref_Id.getString("partner_id", ""));
+        databasePartnerReference = FirebaseDatabase.getInstance().getReference(pref_Id.getString("partner_id", ""));
+        databasePartnerReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String databaseLatitudeString = dataSnapshot.child("Location").child("latitude").getValue().toString();
+                String databaseLongitudeString = dataSnapshot.child("Location").child("longitude").getValue().toString();
                 setUserNewLocationMarker(Float.parseFloat(databaseLatitudeString),Float.parseFloat(databaseLongitudeString)); // Set team member location to map
             }
 
@@ -209,9 +228,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //use the previously created marker
             userLocationMarker.setPosition(latLng);
             userLocationMarker.setRotation(location.getBearing());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
-            Log.d("Ekko",latLng  + "");
-
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));;
             //Update user location to database
             databaseReference.child("Location").child("latitude").setValue(location.getLatitude());
             databaseReference.child("Location").child("longitude").setValue(location.getLongitude());

@@ -6,12 +6,17 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
 import com.example.locationtutorial.R;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -35,13 +40,18 @@ public class MainActivity extends AppCompatActivity {
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
 
+    SharedPreferences pref_Id;
+    EditText id_editText;
+    EditText partnerId_editText;
+    Button confirm_btn;
+
     LocationCallback locationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
             if (locationResult == null) {
                 return;
             }
-            for(Location location: locationResult.getLocations()) {
+            for (Location location : locationResult.getLocations()) {
                 Log.d(TAG, "onLocationResult: " + location.toString());
             }
         }
@@ -58,6 +68,26 @@ public class MainActivity extends AppCompatActivity {
         locationRequest.setInterval(4000);
         locationRequest.setFastestInterval(2000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        id_editText = (EditText) findViewById(R.id.id_textField);
+        partnerId_editText = (EditText) findViewById(R.id.partner_editText);
+        confirm_btn= (Button)findViewById(R.id.confirm_btn);
+
+
+        pref_Id = getSharedPreferences("myPref", MODE_PRIVATE);
+        confirm_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pref_Id.edit().putString("user_id", id_editText.getText().toString()).commit();
+                pref_Id.edit().putString("partner_id", partnerId_editText.getText().toString()).commit();
+
+                startActivity(new Intent(MainActivity.this,MapsActivity.class));
+            }
+        });
+
+        // save your string in SharedPreferences
+
+
+
     }
 
     @Override
@@ -106,8 +136,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     private void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
 
@@ -116,6 +155,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getLastLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         Task<Location> locationTask = fusedLocationProviderClient.getLastLocation();
         locationTask.addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
