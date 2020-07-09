@@ -15,6 +15,9 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.ToggleButton;
 
 import com.example.locationtutorial.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -59,6 +62,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Circle userLocationAccuracyCircle;
     SharedPreferences pref_Id;
 
+    ToggleButton followCameratBtn;
+    protected boolean isFollowUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,15 +74,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         geocoder = new Geocoder(this);
-
+        followCameratBtn = (ToggleButton) findViewById(R.id.followCamTButton);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-
         locationRequest = LocationRequest.create();
         locationRequest.setInterval(500);
         locationRequest.setFastestInterval(500);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         pref_Id = getSharedPreferences("myPref", MODE_PRIVATE);
-        Log.d("Ids","ID1: "+ pref_Id.getString("user_id", ""));
+        Log.d("Ids", "ID1: " + pref_Id.getString("user_id", ""));
         databaseReference = FirebaseDatabase.getInstance().getReference(pref_Id.getString("user_id", ""));
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -84,7 +89,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String databaseLatitudeString = dataSnapshot.child("Location").child("latitude").getValue().toString();
                 String databaseLongitudeString = dataSnapshot.child("Location").child("longitude").getValue().toString();
 
-              //  setUserNewLocationMarker(Float.parseFloat(databaseLatitudeString),Float.parseFloat(databaseLongitudeString)); // Set team member location to map
+                //  setUserNewLocationMarker(Float.parseFloat(databaseLatitudeString),Float.parseFloat(databaseLongitudeString)); // Set team member location to map
             }
 
             @Override
@@ -92,14 +97,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
-        Log.d("Ids","ID2: "+ pref_Id.getString("partner_id", ""));
+        Log.d("Ids", "ID2: " + pref_Id.getString("partner_id", ""));
         databasePartnerReference = FirebaseDatabase.getInstance().getReference(pref_Id.getString("partner_id", ""));
         databasePartnerReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String databaseLatitudeString = dataSnapshot.child("Location").child("latitude").getValue().toString();
                 String databaseLongitudeString = dataSnapshot.child("Location").child("longitude").getValue().toString();
-                setUserNewLocationMarker(Float.parseFloat(databaseLatitudeString),Float.parseFloat(databaseLongitudeString)); // Set team member location to map
+                setUserNewLocationMarker(Float.parseFloat(databaseLatitudeString), Float.parseFloat(databaseLongitudeString)); // Set team member location to map
             }
 
             @Override
@@ -110,6 +115,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         databaseReference.child("Location").child("latitude").setValue("14.5764f");
         databaseReference.child("Location").child("longitude").setValue("121.0851f");
+
+        followCameratBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // The toggle is enabled
+                    isFollowUser=true;
+                } else {
+                    // The toggle is disabled
+                    isFollowUser=false;
+                }
+            }
+        });
     }
 
     /**
@@ -136,9 +153,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 //We can show user a dialog why this permission is necessary
-                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, ACCESS_LOCATION_REQUEST_CODE);
-            } else  {
-                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, ACCESS_LOCATION_REQUEST_CODE);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, ACCESS_LOCATION_REQUEST_CODE);
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, ACCESS_LOCATION_REQUEST_CODE);
             }
 
         }
@@ -160,9 +177,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        mMap.animateCamera(cameraUpdate);
 
 
-        setUserNewLocationMarker(14.5764f,121.0851f);
+        setUserNewLocationMarker(14.5764f, 121.0851f);
 
-        try {
+       /* try {
             List<Address> addresses = geocoder.getFromLocationName("london", 1);
             if (addresses.size() > 0) {
                 Address address = addresses.get(0);
@@ -175,7 +192,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     LocationCallback locationCallback = new LocationCallback() {
@@ -189,7 +206,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     };
 
-    private void setUserNewLocationMarker(float lat,float lng) {
+    private void setUserNewLocationMarker(float lat, float lng) {
 
         LatLng latLng = new LatLng(lat, lng);
 
@@ -201,8 +218,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //markerOptions.rotation(location.getBearing());
             markerOptions.anchor((float) 0.5, (float) 0.5);
             newUserLocationMarker = mMap.addMarker(markerOptions);
-          //  mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
-        } else  {
+            //  mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+        } else {
             //use the previously created marker
             newUserLocationMarker.setPosition(latLng);
 
@@ -223,12 +240,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             markerOptions.rotation(location.getBearing());
             markerOptions.anchor((float) 0.5, (float) 0.5);
             userLocationMarker = mMap.addMarker(markerOptions);
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
-        } else  {
+            if(isFollowUser){
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));;
+            }
+        } else {
             //use the previously created marker
             userLocationMarker.setPosition(latLng);
             userLocationMarker.setRotation(location.getBearing());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));;
+            if(isFollowUser){
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));;
+            }
+
             //Update user location to database
             databaseReference.child("Location").child("latitude").setValue(location.getLatitude());
             databaseReference.child("Location").child("longitude").setValue(location.getLongitude());
@@ -249,6 +271,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
 
@@ -273,10 +305,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void enableUserLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         mMap.setMyLocationEnabled(true);
     }
 
     private void zoomToUserLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         Task<Location> locationTask = fusedLocationProviderClient.getLastLocation();
         locationTask.addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
