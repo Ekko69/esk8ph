@@ -35,6 +35,7 @@ public class RegisterActivity extends AppCompatActivity {
         mPassword=findViewById(R.id.passwordEditText);
         mMobileNumber=findViewById(R.id.mobileNumberEditText);
         mRegisterBtn=findViewById(R.id.registerButton);
+        mLoginBtn=findViewById(R.id.loginBtn);
 
         fAuth=FirebaseAuth.getInstance();
         mProgressBar=findViewById(R.id.progressBar);
@@ -72,9 +73,18 @@ public class RegisterActivity extends AppCompatActivity {
                             startActivity(new Intent(getApplicationContext(),MainActivity.class));;
                         }else{
                             Toast.makeText(RegisterActivity.this, "Error! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            mProgressBar.setVisibility(View.GONE);
                         }
                     }
                 });
+            }
+        });
+
+        mLoginBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(),LoginActivity.class));;
+
             }
         });
 
