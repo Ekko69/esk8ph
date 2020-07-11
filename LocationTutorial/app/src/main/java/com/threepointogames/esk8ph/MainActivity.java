@@ -8,7 +8,6 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -16,7 +15,6 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 
 import com.example.locationtutorial.R;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -40,11 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
-
-    SharedPreferences pref_Id;
-    EditText id_editText;
-    EditText partnerId_editText;
-    Button confirm_btn;
+    Button map_btn;
 
     LocationCallback locationCallback = new LocationCallback() {
         @Override
@@ -69,21 +63,17 @@ public class MainActivity extends AppCompatActivity {
         locationRequest.setInterval(4000);
         locationRequest.setFastestInterval(2000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        id_editText = (EditText) findViewById(R.id.id_textField);
-        partnerId_editText = (EditText) findViewById(R.id.partner_editText);
-        confirm_btn= (Button)findViewById(R.id.confirm_btn);
+        map_btn = (Button)findViewById(R.id.map_btn);
 
-
-        pref_Id = getSharedPreferences("myPref", MODE_PRIVATE);
-        confirm_btn.setOnClickListener(new View.OnClickListener() {
+        map_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pref_Id.edit().putString("user_id", id_editText.getText().toString()).commit();
-                pref_Id.edit().putString("partner_id", partnerId_editText.getText().toString()).commit();
+
 
                 startActivity(new Intent(MainActivity.this,MapsActivity.class));
             }
         });
+
 
         // save your string in SharedPreferences
 

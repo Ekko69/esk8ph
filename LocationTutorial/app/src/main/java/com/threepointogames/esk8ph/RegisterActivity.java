@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -20,6 +21,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import static com.threepointogames.esk8ph.StringReplacer.EncodeString;
 
 public class RegisterActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
@@ -81,6 +84,8 @@ public class RegisterActivity extends AppCompatActivity {
                             databaseReference.child(EncodeString(email)).child("ShareLocation").setValue("False");
                             databaseReference.child(EncodeString(email)).child("Location").child("latitude").setValue("");
                             databaseReference.child(EncodeString(email)).child("Location").child("longitude").setValue("");
+                            LocalSaveData.saveData(RegisterActivity.this,"UsersPref","UserID",EncodeString(mEmail.getText().toString().trim()));
+
 
                             startActivity(new Intent(getApplicationContext(),MainActivity.class));;
                         }else{
@@ -102,11 +107,5 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
     }
-    public static String EncodeString(String string) {
-        return string.replace(".", "_");
-    }
 
-    public static String DecodeString(String string) {
-        return string.replace("_", ".");
-    }
 }

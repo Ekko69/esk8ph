@@ -54,6 +54,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private Geocoder geocoder;
     private int ACCESS_LOCATION_REQUEST_CODE = 10001;
+    private String userID;
     Marker newUserLocationMarker;
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
@@ -62,8 +63,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Circle userLocationAccuracyCircle;
     SharedPreferences pref_Id;
 
-    ToggleButton followCameratBtn;
-    protected boolean isFollowUser;
+    ToggleButton followCameratBtn,shareLocTButton;
+    protected boolean isFollowUser,isShareLocation;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,21 +75,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        userID=LocalSaveData.loadData(MapsActivity.this,"UsersPref","UserID");
         geocoder = new Geocoder(this);
         followCameratBtn = (ToggleButton) findViewById(R.id.followCamTButton);
+        shareLocTButton=findViewById(R.id.shareLocTButton);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         locationRequest = LocationRequest.create();
         locationRequest.setInterval(500);
         locationRequest.setFastestInterval(500);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        pref_Id = getSharedPreferences("myPref", MODE_PRIVATE);
-        Log.d("Ids", "ID1: " + pref_Id.getString("user_id", ""));
-        databaseReference = FirebaseDatabase.getInstance().getReference(pref_Id.getString("user_id", ""));
+        pref_Id = getSharedPreferences("UsersPref", MODE_PRIVATE);
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        Log.d("Ekko","ID: "+ pref_Id.getString("UserId", null));
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String databaseLatitudeString = dataSnapshot.child("Location").child("latitude").getValue().toString();
-                String databaseLongitudeString = dataSnapshot.child("Location").child("longitude").getValue().toString();
+              // String databaseLatitudeString = dataSnapshot.child("Location").child("latitude").getValue().toString();
+               // String databaseLongitudeString = dataSnapshot.child("Location").child("longitude").getValue().toString();
 
                 //  setUserNewLocationMarker(Float.parseFloat(databaseLatitudeString),Float.parseFloat(databaseLongitudeString)); // Set team member location to map
             }
@@ -97,7 +101,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
-        databasePartnerReference = FirebaseDatabase.getInstance().getReference(pref_Id.getString("partner_id", ""));
+       /* databasePartnerReference = FirebaseDatabase.getInstance().getReference(pref_Id.getString("partner_id", ""));
         databasePartnerReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -111,9 +115,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
+*/
 
-       // databaseReference.child("Location").child("latitude").setValue("14.5764f");
-//        databaseReference.child("Location").child("longitude").setValue("121.0851f");
+
 
         followCameratBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -126,6 +130,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         });
+
+        shareLocTButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    // The toggle is enabled
+                    isShareLocation=true;
+                } else {
+                    // The toggle is disabled
+                    isShareLocation=false;
+                }
+            }
+        });
+
     }
 
     /**
@@ -250,9 +268,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));;
             }
 
-            //Update user location to database
-            databaseReference.child("Location").child("latitude").setValue(location.getLatitude());
-            databaseReference.child("Location").child("longitude").setValue(location.getLongitude());
+            if(isShareLocation){
+                //Update user location to database
+
+                databaseReference.child(userID).child("Location").child("latitude").setValue(location.getLatitude());
+                databaseReference.child(userID).child("Location").child("longitude").setValue(location.getLatitude());
+            }
+
+
+
         }
 
         if (userLocationAccuracyCircle == null) {
