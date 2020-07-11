@@ -1,4 +1,4 @@
-package com.threepointogames.esk8ph;
+package com.threepointogames.esk8ph.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;

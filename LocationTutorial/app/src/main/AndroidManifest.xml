@@ -31,7 +31,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name="com.threepointogames.esk8ph.LoginActivity"
+            android:name="com.threepointogames.esk8ph.Activities.LoginActivity"
             android:label="@string/title_activity_maps">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,9 +39,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.threepointogames.esk8ph.RegisterActivity" />
-        <activity android:name="com.threepointogames.esk8ph.MainActivity" />
-        <activity android:name="com.threepointogames.esk8ph.MapsActivity" />
+        <activity android:name="com.threepointogames.esk8ph.Activities.RegisterActivity" />
+        <activity android:name="com.threepointogames.esk8ph.Activities.MainActivity" />
+        <activity android:name="com.threepointogames.esk8ph.Activities.MapsActivity" />
     </application>
 
 </manifest>

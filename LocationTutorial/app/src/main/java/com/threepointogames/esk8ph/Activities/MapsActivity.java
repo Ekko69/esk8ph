@@ -1,4 +1,4 @@
-package com.threepointogames.esk8ph;
+package com.threepointogames.esk8ph.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -15,7 +15,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
-import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ToggleButton;
 
@@ -42,14 +41,16 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.threepointogames.esk8ph.LocalSaveData;
 
 import java.io.IOException;
 import java.util.List;
 
+import static com.threepointogames.esk8ph.StringReplacer.EncodeString;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerDragListener {
 
     private DatabaseReference databaseReference;
-    private DatabaseReference databasePartnerReference;
     private static final String TAG = "MapsActivity";
     private GoogleMap mMap;
     private Geocoder geocoder;
@@ -61,7 +62,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     Marker userLocationMarker;
     Circle userLocationAccuracyCircle;
-    SharedPreferences pref_Id;
 
     ToggleButton followCameratBtn,shareLocTButton;
     protected boolean isFollowUser,isShareLocation;
@@ -75,7 +75,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        userID=LocalSaveData.loadData(MapsActivity.this,"UsersPref","UserID");
+        userID= LocalSaveData.loadData(MapsActivity.this,"UsersPref","UserID");
         geocoder = new Geocoder(this);
         followCameratBtn = (ToggleButton) findViewById(R.id.followCamTButton);
         shareLocTButton=findViewById(R.id.shareLocTButton);
@@ -84,9 +84,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationRequest.setInterval(500);
         locationRequest.setFastestInterval(500);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        pref_Id = getSharedPreferences("UsersPref", MODE_PRIVATE);
         databaseReference = FirebaseDatabase.getInstance().getReference("Users");
-        Log.d("Ekko","ID: "+ pref_Id.getString("UserId", null));
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -101,21 +99,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
-       /* databasePartnerReference = FirebaseDatabase.getInstance().getReference(pref_Id.getString("partner_id", ""));
-        databasePartnerReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String databaseLatitudeString = dataSnapshot.child("Location").child("latitude").getValue().toString();
-                String databaseLongitudeString = dataSnapshot.child("Location").child("longitude").getValue().toString();
-                setUserNewLocationMarker(Float.parseFloat(databaseLatitudeString), Float.parseFloat(databaseLongitudeString)); // Set team member location to map
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-*/
 
 
 
@@ -137,9 +121,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (isChecked) {
                     // The toggle is enabled
                     isShareLocation=true;
+                    databaseReference.child(userID).child("ShareLocation").setValue(isShareLocation);
                 } else {
                     // The toggle is disabled
                     isShareLocation=false;
+                    databaseReference.child(userID).child("ShareLocation").setValue(isShareLocation);
                 }
             }
         });
