@@ -18,8 +18,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity {
+    private DatabaseReference databaseReference;
+    private DatabaseReference databasePartnerReference;
     EditText mUsername,mEmail,mPassword,mMobileNumber;
     Button mRegisterBtn;
     TextView mLoginBtn;
@@ -48,7 +52,7 @@ public class RegisterActivity extends AppCompatActivity {
         mRegisterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String email = mEmail.getText().toString().trim();
+                final String email = mEmail.getText().toString().trim();
                 String password = mPassword.getText().toString().trim();
 
                 if(TextUtils.isEmpty(email)){
@@ -70,6 +74,14 @@ public class RegisterActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
                             Toast.makeText(RegisterActivity.this, "User Created", Toast.LENGTH_SHORT).show();
+                            databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+                            databaseReference.child(EncodeString(email)).child("Username").setValue(mUsername.getText().toString().trim());
+                            databaseReference.child(EncodeString(email)).child("Email").setValue(EncodeString(email));
+                            databaseReference.child(EncodeString(email)).child("Mobile_Number").setValue(mMobileNumber.getText().toString().trim());
+                            databaseReference.child(EncodeString(email)).child("ShareLocation").setValue("False");
+                            databaseReference.child(EncodeString(email)).child("Location").child("latitude").setValue("");
+                            databaseReference.child(EncodeString(email)).child("Location").child("longitude").setValue("");
+
                             startActivity(new Intent(getApplicationContext(),MainActivity.class));;
                         }else{
                             Toast.makeText(RegisterActivity.this, "Error! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -80,6 +92,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
+
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -88,5 +101,12 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
+    }
+    public static String EncodeString(String string) {
+        return string.replace(".", "_");
+    }
+
+    public static String DecodeString(String string) {
+        return string.replace("_", ".");
     }
 }

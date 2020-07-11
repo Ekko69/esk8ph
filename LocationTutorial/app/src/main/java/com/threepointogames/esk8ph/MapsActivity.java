@@ -97,7 +97,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
-        Log.d("Ids", "ID2: " + pref_Id.getString("partner_id", ""));
         databasePartnerReference = FirebaseDatabase.getInstance().getReference(pref_Id.getString("partner_id", ""));
         databasePartnerReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -113,8 +112,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        databaseReference.child("Location").child("latitude").setValue("14.5764f");
-        databaseReference.child("Location").child("longitude").setValue("121.0851f");
+       // databaseReference.child("Location").child("latitude").setValue("14.5764f");
+//        databaseReference.child("Location").child("longitude").setValue("121.0851f");
 
         followCameratBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
