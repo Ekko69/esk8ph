@@ -69,7 +69,6 @@ public class LoginActivity extends AppCompatActivity {
                         if(task.isSuccessful()){
                             Toast.makeText(LoginActivity.this, "Logged in Successfully", Toast.LENGTH_SHORT).show();
                             LocalSaveData.saveData(LoginActivity.this,"UsersPref","UserID",EncodeString(mEmail.getText().toString().trim()));
-                            Log.d("Ekko","Saved ID: "+ LocalSaveData.loadData(LoginActivity.this,"UsersPref","UserID"));;
                             startActivity(new Intent(getApplicationContext(),MainActivity.class));;
                         }else {
                             Toast.makeText(LoginActivity.this, "Error! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();

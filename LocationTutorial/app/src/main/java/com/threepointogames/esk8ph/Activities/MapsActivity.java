@@ -40,6 +40,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.threepointogames.esk8ph.LocalSaveData;
 
@@ -50,7 +51,7 @@ import static com.threepointogames.esk8ph.StringReplacer.EncodeString;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerDragListener {
 
-    private DatabaseReference databaseReference;
+    private DatabaseReference databaseReference,dbShareLocationUsers;
     private static final String TAG = "MapsActivity";
     private GoogleMap mMap;
     private Geocoder geocoder;
@@ -85,13 +86,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationRequest.setFastestInterval(500);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        Query dbShareLocationUsers=databaseReference.orderByChild("ShareLocation").equalTo(true);
+        dbShareLocationUsers.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String databaseUsername = snapshot.child("Username").getValue().toString();
+                    Log.d("Ekko", "UserName: " + databaseUsername);
+                }
+                if (dataSnapshot.hasChild("Username")) {
+                    Log.d("Ekko","1");
+                }
+                else {
+                    Log.d("Ekko","2");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+
+        });
+
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-              // String databaseLatitudeString = dataSnapshot.child("Location").child("latitude").getValue().toString();
+
                // String databaseLongitudeString = dataSnapshot.child("Location").child("longitude").getValue().toString();
 
                 //  setUserNewLocationMarker(Float.parseFloat(databaseLatitudeString),Float.parseFloat(databaseLongitudeString)); // Set team member location to map
+            /*    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String databaseUsername = snapshot.child("Username").getValue().toString();
+                    Log.d("Ekko","UserName: "+ databaseUsername);
+                }*/
             }
 
             @Override
@@ -131,6 +159,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
     }
+
 
     /**
      * Manipulates the map once available.
