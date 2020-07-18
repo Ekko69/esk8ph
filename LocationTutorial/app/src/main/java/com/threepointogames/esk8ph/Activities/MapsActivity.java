@@ -43,8 +43,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.threepointogames.esk8ph.LocalSaveData;
+import com.threepointogames.esk8ph.SharedLocUser;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.threepointogames.esk8ph.StringReplacer.EncodeString;
@@ -58,6 +60,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private int ACCESS_LOCATION_REQUEST_CODE = 10001;
     private String userID;
     Marker newUserLocationMarker;
+    List<SharedLocUser> sharedLocUsers;
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
 
@@ -76,6 +79,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        sharedLocUsers = new ArrayList<>();
         userID= LocalSaveData.loadData(MapsActivity.this,"UsersPref","UserID");
         geocoder = new Geocoder(this);
         followCameratBtn = (ToggleButton) findViewById(R.id.followCamTButton);
@@ -92,14 +96,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     String databaseUsername = snapshot.child("Username").getValue().toString();
-                    Log.d("Ekko", "UserName: " + databaseUsername);
+                    String databaseLat = snapshot.child("Location").child("latitude").getValue().toString();
+                    String databaseLong = snapshot.child("Location").child("longitude").getValue().toString();
+                     setUserNewLocationMarker(Float.parseFloat(databaseLat),Float.parseFloat(databaseLong)); // Set team member location to map
+
+
                 }
-                if (dataSnapshot.hasChild("Username")) {
-                    Log.d("Ekko","1");
-                }
-                else {
-                    Log.d("Ekko","2");
-                }
+
             }
 
             @Override
@@ -108,7 +111,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
         });
+        sharedLocUsers.add(new SharedLocUser("id1",44,24));
+        sharedLocUsers.add(new SharedLocUser("id2",45,34));
+        sharedLocUsers.add(new SharedLocUser("id3",46,44));
 
+        for (int i =0; i<sharedLocUsers.size();i++){
+
+            if(sharedLocUsers.get(i).id=="id1"){
+                Log.d("Ekko","Yes");
+            }else{
+                Log.d("Ekko","No");
+
+            }
+            Log.d("Ekko","Size: "+ sharedLocUsers.get(i).id);
+        }
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -120,6 +136,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String databaseUsername = snapshot.child("Username").getValue().toString();
                     Log.d("Ekko","UserName: "+ databaseUsername);
                 }*/
+
             }
 
             @Override
@@ -159,6 +176,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
     }
+
 
 
     /**
@@ -209,7 +227,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        mMap.animateCamera(cameraUpdate);
 
 
-        setUserNewLocationMarker(14.5764f, 121.0851f);
+     //   setUserNewLocationMarker(14.5764f, 121.0851f);
 
        /* try {
             List<Address> addresses = geocoder.getFromLocationName("london", 1);
@@ -287,7 +305,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 //Update user location to database
 
                 databaseReference.child(userID).child("Location").child("latitude").setValue(location.getLatitude());
-                databaseReference.child(userID).child("Location").child("longitude").setValue(location.getLatitude());
+                databaseReference.child(userID).child("Location").child("longitude").setValue(location.getLongitude());
             }
 
 
@@ -340,6 +358,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onStop() {
         super.onStop();
         stopLocationUpdates();
+        isShareLocation=false;
+        databaseReference.child(userID).child("ShareLocation").setValue(isShareLocation);
+
     }
 
     private void enableUserLocation() {
