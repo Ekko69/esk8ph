@@ -9,10 +9,12 @@ import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Shader;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.CompoundButton;
@@ -47,7 +49,11 @@ import com.threepointogames.esk8ph.SharedLocUser;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.threepointogames.esk8ph.StringReplacer.EncodeString;
 
@@ -70,6 +76,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ToggleButton followCameratBtn,shareLocTButton;
     protected boolean isFollowUser,isShareLocation;
 
+    private Timer timer;
+    private TimerTask timerTask;
+    private Handler handler = new Handler();
+
+    private Map<String, Marker> mMarkerMap = new HashMap<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +91,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        HashMap<Integer,String> HashMap=new HashMap<Integer,String>();
         sharedLocUsers = new ArrayList<>();
         userID= LocalSaveData.loadData(MapsActivity.this,"UsersPref","UserID");
         geocoder = new Geocoder(this);
@@ -91,6 +104,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         databaseReference = FirebaseDatabase.getInstance().getReference("Users");
         Query dbShareLocationUsers=databaseReference.orderByChild("ShareLocation").equalTo(true);
+
+        sharedLocUsers.add(new SharedLocUser("Ekko",1,2));
+        sharedLocUsers.add(new SharedLocUser("Joan",1,2));
+
+
+
         dbShareLocationUsers.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -98,10 +117,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String databaseUsername = snapshot.child("Username").getValue().toString();
                     String databaseLat = snapshot.child("Location").child("latitude").getValue().toString();
                     String databaseLong = snapshot.child("Location").child("longitude").getValue().toString();
-                     setUserNewLocationMarker(Float.parseFloat(databaseLat),Float.parseFloat(databaseLong)); // Set team member location to map
+                    //  setUserNewLocationMarker(Float.parseFloat(databaseLat),Float.parseFloat(databaseLong)); // Set team member location to map
+                   // Log.d("Ekko","Location 1: " + databaseUsername+" "+databaseLat+" "+databaseLong);
 
+                    final LatLng latlng = new LatLng(Float.parseFloat(databaseLat), Float.parseFloat(databaseLong));
+
+                    Marker previousMarker = mMarkerMap.get(databaseUsername);
+                    if (previousMarker != null) {
+                        //previous marker exists, update position:
+                        previousMarker.setPosition(latlng);
+                    } else {
+                        //No previous marker, create a new one:
+                        MarkerOptions markerOptions = new MarkerOptions()
+                                .position(latlng)
+                                .title(databaseUsername);
+
+                        Marker marker = mMap.addMarker(markerOptions);
+
+                        //put this new marker in the HashMap:
+                        mMarkerMap.put(databaseUsername, marker);
+                    }
 
                 }
+
+
+
 
             }
 
@@ -111,20 +151,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
         });
-        sharedLocUsers.add(new SharedLocUser("id1",44,24));
-        sharedLocUsers.add(new SharedLocUser("id2",45,34));
-        sharedLocUsers.add(new SharedLocUser("id3",46,44));
 
-        for (int i =0; i<sharedLocUsers.size();i++){
 
-            if(sharedLocUsers.get(i).id=="id1"){
-                Log.d("Ekko","Yes");
-            }else{
-                Log.d("Ekko","No");
 
-            }
-            Log.d("Ekko","Size: "+ sharedLocUsers.get(i).id);
-        }
+
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -175,9 +205,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        startTimer();
+
+        HashMap.put(1,"Ekko");
+        HashMap.put(2,"Joan");
+        HashMap.put(1,"Jereco");
+        for(Map.Entry map  :  HashMap.entrySet() )
+        {
+            Log.d("Ekko","Hashmap: " + map.getKey()+" "+map.getValue());
+
+        }
+
     }
 
+    public void FindUser(){
+        for(int i=0; i <sharedLocUsers.size();i++){
 
+        }
+    }
 
     /**
      * Manipulates the map once available.
@@ -275,6 +320,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
 
+
+    }
+    private void stopTimer(){
+        if(timer != null){
+            timer.cancel();
+            timer.purge();
+        }
+    }
+
+    //To start timer
+    private void startTimer(){
+        timer = new Timer();
+        timerTask = new TimerTask() {
+            public void run() {
+                handler.post(new Runnable() {
+                    public void run(){
+                        UpdateEk8erLocation();
+                    }
+                });
+            }
+        };
+        timer.schedule(timerTask, 10000, 10000);
+    }
+
+    public void UpdateEk8erLocation(){
 
     }
 
