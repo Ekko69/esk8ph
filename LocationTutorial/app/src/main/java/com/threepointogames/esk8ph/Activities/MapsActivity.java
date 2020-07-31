@@ -212,11 +212,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    public void FindUser(){
-        for(int i=0; i <sharedLocUsers.size();i++){
 
-        }
-    }
 
     /**
      * Manipulates the map once available.
@@ -424,6 +420,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         isShareLocation=false;
         databaseReference.child(userID).child("ShareLocation").setValue(isShareLocation);
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopLocationUpdates();
+        isShareLocation=false;
+        databaseReference.child(userID).child("ShareLocation").setValue(isShareLocation);
     }
 
     private void enableUserLocation() {
