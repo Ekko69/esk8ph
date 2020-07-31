@@ -55,6 +55,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.threepointogames.esk8ph.StringReplacer.DecodeString;
 import static com.threepointogames.esk8ph.StringReplacer.EncodeString;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerDragListener {
@@ -93,7 +94,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
         HashMap<Integer,String> HashMap=new HashMap<Integer,String>();
         sharedLocUsers = new ArrayList<>();
-        userID= LocalSaveData.loadData(MapsActivity.this,"UsersPref","UserID");
+        userID=  LocalSaveData.loadData(MapsActivity.this,"UsersPref","UserID");
         geocoder = new Geocoder(this);
         followCameratBtn = (ToggleButton) findViewById(R.id.followCamTButton);
         shareLocTButton=findViewById(R.id.shareLocTButton);
@@ -105,9 +106,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         databaseReference = FirebaseDatabase.getInstance().getReference("Users");
         Query dbShareLocationUsers=databaseReference.orderByChild("ShareLocation").equalTo(true);
 
-        sharedLocUsers.add(new SharedLocUser("Ekko",1,2));
-        sharedLocUsers.add(new SharedLocUser("Joan",1,2));
-
 
 
         dbShareLocationUsers.addValueEventListener(new ValueEventListener() {
@@ -117,25 +115,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String databaseUsername = snapshot.child("Username").getValue().toString();
                     String databaseLat = snapshot.child("Location").child("latitude").getValue().toString();
                     String databaseLong = snapshot.child("Location").child("longitude").getValue().toString();
-                    //  setUserNewLocationMarker(Float.parseFloat(databaseLat),Float.parseFloat(databaseLong)); // Set team member location to map
-                   // Log.d("Ekko","Location 1: " + databaseUsername+" "+databaseLat+" "+databaseLong);
+                    String databaseId=snapshot.child("Email").getValue().toString();
+                    Log.d("ID", databaseId + " "+ userID);
+                    if(databaseId.equals(userID)) {
 
-                    final LatLng latlng = new LatLng(Float.parseFloat(databaseLat), Float.parseFloat(databaseLong));
+                    }else{
 
-                    Marker previousMarker = mMarkerMap.get(databaseUsername);
-                    if (previousMarker != null) {
-                        //previous marker exists, update position:
-                        previousMarker.setPosition(latlng);
-                    } else {
-                        //No previous marker, create a new one:
-                        MarkerOptions markerOptions = new MarkerOptions()
-                                .position(latlng)
-                                .title(databaseUsername);
+                        final LatLng latlng = new LatLng(Float.parseFloat(databaseLat), Float.parseFloat(databaseLong));
+                        Marker previousMarker = mMarkerMap.get(databaseUsername);
+                        if (previousMarker != null) {
+                            //previous marker exists, update position:
+                            previousMarker.setPosition(latlng);
+                        } else {
+                            //No previous marker, create a new one:
+                            MarkerOptions markerOptions = new MarkerOptions()
+                                    .position(latlng)
+                                    .title(databaseUsername);
 
-                        Marker marker = mMap.addMarker(markerOptions);
+                            Marker marker = mMap.addMarker(markerOptions);
 
-                        //put this new marker in the HashMap:
-                        mMarkerMap.put(databaseUsername, marker);
+                            //put this new marker in the HashMap:
+                            mMarkerMap.put(databaseUsername, marker);
+                        }
+                        Log.d("ID","Not you: "+ databaseId);
                     }
 
                 }
@@ -207,14 +209,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         startTimer();
 
-        HashMap.put(1,"Ekko");
-        HashMap.put(2,"Joan");
-        HashMap.put(1,"Jereco");
-        for(Map.Entry map  :  HashMap.entrySet() )
-        {
-            Log.d("Ekko","Hashmap: " + map.getKey()+" "+map.getValue());
-
-        }
 
     }
 
@@ -294,7 +288,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void onLocationResult(LocationResult locationResult) {
             super.onLocationResult(locationResult);
-            Log.d(TAG, "onLocationResult: " + locationResult.getLastLocation());
             if (mMap != null) {
                 setUserLocationMarker(locationResult.getLastLocation());
             }
