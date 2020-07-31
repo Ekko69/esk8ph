@@ -1,6 +1,7 @@
 package com.threepointogames.esk8ph.Activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -38,6 +39,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -60,12 +62,14 @@ import static com.threepointogames.esk8ph.StringReplacer.EncodeString;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerDragListener {
 
-    private DatabaseReference databaseReference,dbShareLocationUsers;
+    private DatabaseReference databaseReference;
+    public DatabaseReference databaseShareLocationUsers;
     private static final String TAG = "MapsActivity";
     private GoogleMap mMap;
     private Geocoder geocoder;
     private int ACCESS_LOCATION_REQUEST_CODE = 10001;
     private String userID;
+    private String username;
     Marker newUserLocationMarker;
     List<SharedLocUser> sharedLocUsers;
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -104,19 +108,82 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationRequest.setFastestInterval(500);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        databaseShareLocationUsers = FirebaseDatabase.getInstance().getReference("UsersSharingLocation");
         Query dbShareLocationUsers=databaseReference.orderByChild("ShareLocation").equalTo(true);
+        Query dbUserSharingLocation = databaseShareLocationUsers;
 
 
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() { // Get Other data from database
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String databaseId=snapshot.child("Email").getValue().toString();
+                    String databaseUsername = snapshot.child("Username").getValue().toString();
+                    if(databaseId.equals(userID)) {
+                        username = databaseUsername;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+
+        dbUserSharingLocation.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+
+                    String databaseUsername = snapshot.getValue().toString();
+                    //TODO: Change Username to ID and add checking if you removed your own hashmap.
+                    Log.d("Ekko", "Removed: "+ databaseUsername );
+                    Marker previousMarker = mMarkerMap.get(databaseUsername);
+                    previousMarker.remove();
+                    mMarkerMap.remove(databaseUsername);
+
+                }
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
         dbShareLocationUsers.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     String databaseUsername = snapshot.child("Username").getValue().toString();
                     String databaseLat = snapshot.child("Location").child("latitude").getValue().toString();
                     String databaseLong = snapshot.child("Location").child("longitude").getValue().toString();
                     String databaseId=snapshot.child("Email").getValue().toString();
-                    Log.d("ID", databaseId + " "+ userID);
+
+
+
                     if(databaseId.equals(userID)) {
 
                     }else{
@@ -126,6 +193,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         if (previousMarker != null) {
                             //previous marker exists, update position:
                             previousMarker.setPosition(latlng);
+
+
+
+
                         } else {
                             //No previous marker, create a new one:
                             MarkerOptions markerOptions = new MarkerOptions()
@@ -134,10 +205,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                             Marker marker = mMap.addMarker(markerOptions);
 
+
                             //put this new marker in the HashMap:
                             mMarkerMap.put(databaseUsername, marker);
                         }
-                        Log.d("ID","Not you: "+ databaseId);
+
+                        if(!mMarkerMap.containsKey(databaseUsername)){
+
+                        }else{
+                         //   Log.d("Ekko",databaseUsername + " is exist");
+                        }
                     }
 
                 }
@@ -179,7 +256,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-
         followCameratBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -197,21 +273,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
                     // The toggle is enabled
-                    isShareLocation=true;
-                    databaseReference.child(userID).child("ShareLocation").setValue(isShareLocation);
+                    ShareLocation();
+
                 } else {
                     // The toggle is disabled
-                    isShareLocation=false;
-                    databaseReference.child(userID).child("ShareLocation").setValue(isShareLocation);
+                    StopSharingLocation();
                 }
             }
         });
 
         startTimer();
 
-
     }
 
+    public void ShareLocation(){
+        isShareLocation=true;
+        databaseReference.child(userID).child("ShareLocation").setValue(isShareLocation);
+        databaseShareLocationUsers.child(userID).child("Username").setValue(username);
+    }
+    public void StopSharingLocation(){
+        isShareLocation=false;
+        databaseReference.child(userID).child("ShareLocation").setValue(isShareLocation);
+        databaseShareLocationUsers.child(userID).removeValue();
+    }
 
 
     /**
@@ -417,8 +501,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onStop() {
         super.onStop();
         stopLocationUpdates();
-        isShareLocation=false;
-        databaseReference.child(userID).child("ShareLocation").setValue(isShareLocation);
+        StopSharingLocation();
 
     }
 
@@ -426,8 +509,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onDestroy() {
         super.onDestroy();
         stopLocationUpdates();
-        isShareLocation=false;
-        databaseReference.child(userID).child("ShareLocation").setValue(isShareLocation);
+        StopSharingLocation();
     }
 
     private void enableUserLocation() {
