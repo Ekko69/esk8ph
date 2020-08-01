@@ -117,7 +117,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    String databaseId=snapshot.child("Email").getValue().toString();
+                    String databaseId=snapshot.child("Id").getValue().toString();
                     String databaseUsername = snapshot.child("Username").getValue().toString();
                     if(databaseId.equals(userID)) {
                         username = databaseUsername;
@@ -150,12 +150,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
 
-                    String databaseUsername = snapshot.getValue().toString();
-                    //TODO: Change Username to ID and add checking if you removed your own hashmap.
-                    Log.d("Ekko", "Removed: "+ databaseUsername );
-                    Marker previousMarker = mMarkerMap.get(databaseUsername);
-                    previousMarker.remove();
-                    mMarkerMap.remove(databaseUsername);
+                    String databaseId = snapshot.getValue().toString();
+                    Marker previousMarker = mMarkerMap.get(databaseId);
+                    if(previousMarker!=null){
+                        previousMarker.remove();
+                    }
+                    mMarkerMap.remove(databaseId);
 
                 }
 
@@ -180,41 +180,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String databaseUsername = snapshot.child("Username").getValue().toString();
                     String databaseLat = snapshot.child("Location").child("latitude").getValue().toString();
                     String databaseLong = snapshot.child("Location").child("longitude").getValue().toString();
-                    String databaseId=snapshot.child("Email").getValue().toString();
+                    String databaseId=snapshot.child("Id").getValue().toString();
+                    if(!databaseLat.equals("")&& !databaseLong.equals("")) {
 
-
-
-                    if(databaseId.equals(userID)) {
-
-                    }else{
-
-                        final LatLng latlng = new LatLng(Float.parseFloat(databaseLat), Float.parseFloat(databaseLong));
-                        Marker previousMarker = mMarkerMap.get(databaseUsername);
-                        if (previousMarker != null) {
-                            //previous marker exists, update position:
-                            previousMarker.setPosition(latlng);
-
-
-
-
-                        } else {
-                            //No previous marker, create a new one:
-                            MarkerOptions markerOptions = new MarkerOptions()
-                                    .position(latlng)
-                                    .title(databaseUsername);
-
-                            Marker marker = mMap.addMarker(markerOptions);
-
-
-                            //put this new marker in the HashMap:
-                            mMarkerMap.put(databaseUsername, marker);
-                        }
-
-                        if(!mMarkerMap.containsKey(databaseUsername)){
+                        if(databaseId.equals(userID)) {
 
                         }else{
-                         //   Log.d("Ekko",databaseUsername + " is exist");
+
+                                final LatLng latlng = new LatLng(Float.parseFloat(databaseLat), Float.parseFloat(databaseLong));
+                                Marker previousMarker = mMarkerMap.get(databaseId);
+                                if (previousMarker != null) {
+                                    //previous marker exists, update position:
+                                    previousMarker.setPosition(latlng);
+
+
+                                } else {
+                                    //No previous marker, create a new one:
+                                    MarkerOptions markerOptions = new MarkerOptions()
+                                            .position(latlng)
+                                            .title(databaseUsername);
+
+                                    Marker marker = mMap.addMarker(markerOptions);
+
+
+                                    //put this new marker in the HashMap:
+                                    mMarkerMap.put(databaseId, marker);
+                                }
                         }
+
+
                     }
 
                 }
@@ -243,7 +237,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 //  setUserNewLocationMarker(Float.parseFloat(databaseLatitudeString),Float.parseFloat(databaseLongitudeString)); // Set team member location to map
             /*    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     String databaseUsername = snapshot.child("Username").getValue().toString();
-                    Log.d("Ekko","UserName: "+ databaseUsername);
+
                 }*/
 
             }
@@ -289,6 +283,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void ShareLocation(){
         isShareLocation=true;
         databaseReference.child(userID).child("ShareLocation").setValue(isShareLocation);
+        databaseShareLocationUsers.child(userID).child("Id").setValue(userID);
         databaseShareLocationUsers.child(userID).child("Username").setValue(username);
     }
     public void StopSharingLocation(){
@@ -500,8 +495,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onStop() {
         super.onStop();
-        stopLocationUpdates();
-        StopSharingLocation();
 
     }
 

@@ -78,13 +78,14 @@ public class RegisterActivity extends AppCompatActivity {
                         if(task.isSuccessful()){
                             Toast.makeText(RegisterActivity.this, "User Created", Toast.LENGTH_SHORT).show();
                             databaseReference = FirebaseDatabase.getInstance().getReference("Users");
-                            databaseReference.child(EncodeString(email)).child("Username").setValue(mUsername.getText().toString().trim());
-                            databaseReference.child(EncodeString(email)).child("Email").setValue(EncodeString(email));
-                            databaseReference.child(EncodeString(email)).child("Mobile_Number").setValue(mMobileNumber.getText().toString().trim());
-                            databaseReference.child(EncodeString(email)).child("ShareLocation").setValue("False");
-                            databaseReference.child(EncodeString(email)).child("Location").child("latitude").setValue("");
-                            databaseReference.child(EncodeString(email)).child("Location").child("longitude").setValue("");
-                            LocalSaveData.saveData(RegisterActivity.this,"UsersPref","UserID",EncodeString(mEmail.getText().toString().trim()));
+                            databaseReference.child(EncodeString(fAuth.getUid())).child("Id").setValue(fAuth.getUid());
+                            databaseReference.child(EncodeString(fAuth.getUid())).child("Username").setValue(mUsername.getText().toString().trim());
+                            databaseReference.child(EncodeString(fAuth.getUid())).child("Email").setValue(EncodeString(email));
+                            databaseReference.child(EncodeString(fAuth.getUid())).child("Mobile_Number").setValue(mMobileNumber.getText().toString().trim());
+                            databaseReference.child(EncodeString(fAuth.getUid())).child("ShareLocation").setValue("False");
+                            databaseReference.child(EncodeString(fAuth.getUid())).child("Location").child("latitude").setValue("");
+                            databaseReference.child(EncodeString(fAuth.getUid())).child("Location").child("longitude").setValue("");
+                            LocalSaveData.saveData(RegisterActivity.this,"UsersPref","UserID",fAuth.getUid());
 
 
                             startActivity(new Intent(getApplicationContext(),MainActivity.class));;

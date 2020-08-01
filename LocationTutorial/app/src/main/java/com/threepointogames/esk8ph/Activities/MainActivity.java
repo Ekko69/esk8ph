@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             for (Location location : locationResult.getLocations()) {
-                Log.d(TAG, "onLocationResult: " + location.toString());
+
             }
         }
     };
