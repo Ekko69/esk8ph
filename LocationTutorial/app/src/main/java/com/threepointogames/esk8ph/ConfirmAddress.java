@@ -4,6 +4,7 @@ package com.threepointogames.esk8ph;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.app.DialogFragment;
 import android.util.Log;
@@ -23,6 +24,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.threepointogames.esk8ph.Activities.ChargingLocSpotActivity;
 import com.threepointogames.esk8ph.Activities.MapsActivity;
 
 public class ConfirmAddress extends DialogFragment implements
@@ -67,6 +69,7 @@ public class ConfirmAddress extends DialogFragment implements
             public void onClick(View v) {
                 Toast.makeText(getActivity(),myAddress.getText().toString(),Toast.LENGTH_LONG).show();
                 getFragmentManager().beginTransaction().remove(mapFragment).commit();
+                startActivity(new Intent(getActivity(), ChargingLocSpotActivity.class));
                 dismiss();
             }
         });

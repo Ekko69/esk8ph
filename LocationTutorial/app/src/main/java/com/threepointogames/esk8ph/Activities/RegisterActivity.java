@@ -47,11 +47,6 @@ public class RegisterActivity extends AppCompatActivity {
         fAuth=FirebaseAuth.getInstance();
         mProgressBar=findViewById(R.id.progressBar);
 
-        if(fAuth.getCurrentUser() != null){
-            startActivity(new Intent(getApplicationContext(),MainActivity.class));;
-            finish();
-        }
-
         mRegisterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
