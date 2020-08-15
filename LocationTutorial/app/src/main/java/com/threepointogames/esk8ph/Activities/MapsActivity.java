@@ -98,7 +98,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Handler handler = new Handler();
 
     private Map<String, Marker> mMarkerMap = new HashMap<>();
-    private Map<String, Marker> mChargingPointMarkerMap = new HashMap<>();
+    public static Map<String, Marker> mChargingPointMarkerMap = new HashMap<>();
     private final static int PLACE_PICKER_REQUEST = 999;
     private final static int LOCATION_REQUEST_CODE = 23;
 
@@ -337,6 +337,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         CameraUpdate location = CameraUpdateFactory.newLatLngZoom(
                 longLat, 15);
         mMap.animateCamera(location);
+    }
+
+    public static void RemoveChargingSpotMarker(String longLat){
+        Log.d("Ekko", "Remove The marker!");
+        Marker previousMarker = mChargingPointMarkerMap.get(longLat);
+        if (previousMarker != null) {
+            previousMarker.remove();
+        }
     }
 
 

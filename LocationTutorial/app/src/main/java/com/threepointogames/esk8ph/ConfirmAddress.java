@@ -3,8 +3,6 @@ package com.threepointogames.esk8ph;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.Fragment;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.app.DialogFragment;
@@ -12,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,13 +21,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.w3c.dom.Text;
-
-import java.io.Console;
+import com.threepointogames.esk8ph.Activities.MapsActivity;
 
 public class ConfirmAddress extends DialogFragment implements
         android.view.View.OnClickListener, OnMapReadyCallback {
@@ -81,6 +74,7 @@ public class ConfirmAddress extends DialogFragment implements
             @Override
             public void onClick(View v) {
                 getFragmentManager().beginTransaction().remove(mapFragment).commit();
+                MapsActivity.RemoveChargingSpotMarker(Lat+"_"+Long);
                 dismiss();
             }
         });
@@ -93,6 +87,7 @@ public class ConfirmAddress extends DialogFragment implements
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
         getFragmentManager().beginTransaction().remove(mapFragment).commit();
+        MapsActivity.RemoveChargingSpotMarker(Lat+"_"+Long);
 
     }
 
