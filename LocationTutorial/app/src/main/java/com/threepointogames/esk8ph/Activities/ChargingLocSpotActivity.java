@@ -13,6 +13,8 @@ import com.stepstone.apprating.AppRatingDialog;
 import com.stepstone.apprating.listener.RatingDialogListener;
 import com.threepointogames.esk8ph.Models.SliderItem;
 import com.threepointogames.esk8ph.SliderAdapter;
+import com.willy.ratingbar.BaseRatingBar;
+import com.willy.ratingbar.ScaleRatingBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -31,11 +33,13 @@ public class ChargingLocSpotActivity extends AppCompatActivity  implements Ratin
 
     SliderView sliderView;
     private SliderAdapter adapter;
+    private  ScaleRatingBar scaleRatingBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_charging_loc_spot);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        scaleRatingBar = findViewById(R.id.mainRatingBar);
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -62,7 +66,7 @@ public class ChargingLocSpotActivity extends AppCompatActivity  implements Ratin
         sliderView.setAutoCycle(true);
         sliderView.startAutoCycle();
 
-
+         SetAverageStar(4); // Set star
          renewItems();
 
 
@@ -75,6 +79,34 @@ public class ChargingLocSpotActivity extends AppCompatActivity  implements Ratin
 
 
 
+
+
+          
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+    public void SetAverageStar(int starRating){
+            // TODO: Calculate Average rating
+           scaleRatingBar.setNumStars(5);
+           scaleRatingBar.setMinimumStars(1);
+           scaleRatingBar.setRating(starRating); // Set Star Here
     }
     public void renewItems() {
         List<SliderItem> sliderItemList = new ArrayList<>();
